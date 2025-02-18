@@ -7,10 +7,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
 <!-- Vision Board & Calendar -->
 <div class="main-container">
-  <!-- Left column -->
+  <!-- Left Column -->
   <div class="left-column">
     <div class="card" id="datetime-card">
       <div id="clock">00:00:00</div>
@@ -30,7 +29,7 @@
       </div>
     </div>
   </div>
-  <!-- Right column -->
+  <!-- Right Column -->
   <div class="right-column">
     <div class="grid-container">
       <div class="card" id="daily-tasks">
@@ -71,6 +70,7 @@
 <div id="modal" class="modal">
   <div class="modal-content">
     <h3 id="modal-title">Enter Content</h3>
+    <label for="modal-input" class="visually-hidden">Content</label>
     <input type="text" id="modal-input" placeholder="Enter content..." />
     <div class="modal-buttons">
       <button class="cancel-btn" onclick="closeModal()">Cancel</button>
@@ -157,6 +157,7 @@
 <div id="financial-modal" class="modal">
   <div class="modal-content">
     <h3 id="financial-modal-title">Enter Value</h3>
+    <label for="financial-modal-input" class="visually-hidden">Value</label>
     <input type="number" id="financial-modal-input" placeholder="Enter value..." />
     <div class="modal-buttons">
       <button class="cancel-btn" onclick="closeFinancialModal()">Cancel</button>
@@ -184,7 +185,9 @@
 <div id="expense-modal" class="modal">
   <div class="modal-content">
     <h3 id="expense-modal-title">Enter Daily Expense</h3>
+    <label for="expense-modal-desc" class="visually-hidden">Expense Description</label>
     <input type="text" id="expense-modal-desc" placeholder="Expense description..." />
+    <label for="expense-modal-amount" class="visually-hidden">Amount</label>
     <input type="number" id="expense-modal-amount" placeholder="Amount..." />
     <div class="modal-buttons">
       <button class="cancel-btn" onclick="closeExpenseModal()">Cancel</button>
@@ -197,7 +200,9 @@
 <div id="monthly-expense-modal" class="modal">
   <div class="modal-content">
     <h3 id="monthly-expense-modal-title">Enter Monthly Expense</h3>
+    <label for="monthly-expense-desc" class="visually-hidden">Expense Description</label>
     <input type="text" id="monthly-expense-desc" placeholder="Expense description..." />
+    <label for="monthly-expense-amount" class="visually-hidden">Amount</label>
     <input type="number" id="monthly-expense-amount" placeholder="Amount..." />
     <div class="modal-buttons">
       <button class="cancel-btn" onclick="closeMonthlyExpenseModal()">Cancel</button>
