@@ -1,0 +1,289 @@
+:root {
+  --primary-color: #007BFF;
+  --primary-dark: #0056b3;
+  --background: #f4f4f4;
+  --card-bg: #fff;
+  --text-color: #333;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: var(--background);
+  padding: 20px;
+}
+/* Main container */
+.main-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+/* Left column */
+.left-column {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* Right column */
+.right-column {
+  flex: 1;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+/* Card style */
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+h2, h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+}
+/* Card header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card h2 span {
+  font-size: 0.8em;
+  color: var(--primary-color);
+  margin-left: 5px;
+}
+/* Add button container */
+.add-button-container {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.add-button-container button {
+  padding: 8px 16px;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.add-button-container button:hover {
+  background: var(--primary-dark);
+}
+ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 10px 0 60px;
+}
+li {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+li:last-child {
+  border-bottom: none;
+}
+li button {
+  font-size: 0.9em;
+}
+/* Clock & Date */
+#clock {
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+}
+#date {
+  font-size: 1.2em;
+  text-align: center;
+  margin-top: 5px;
+}
+/* Calendar */
+#calendar table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#calendar th,
+#calendar td {
+  width: 14.28%;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #eee;
+}
+#calendar th {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+#calendar td.current-day {
+  background-color: #ffeb3b;
+  border: 2px solid #f57c00;
+  border-radius: 50%;
+}
+/* Modal common style */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+.modal-content h3 {
+  margin-top: 0;
+}
+.modal-content input[type="text"],
+.modal-content input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+}
+.modal-content .modal-buttons {
+  margin-top: 15px;
+  text-align: right;
+}
+.modal-content .modal-buttons button {
+  padding: 6px 12px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.modal-content .modal-buttons .save-btn {
+  background: var(--primary-color);
+  color: #fff;
+}
+.modal-content .modal-buttons .cancel-btn {
+  background: #ccc;
+  color: #333;
+}
+/* Custom Confirmation Modal */
+#confirm-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+#confirm-modal .modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 350px;
+}
+#confirm-modal p {
+  margin: 10px 0;
+}
+/* Financial Section */
+.financial-container {
+  margin-top: 20px;
+}
+.financial-container h2 {
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+.financial-container .card {
+  text-align: center;
+}
+.financial-container .card .value {
+  font-size: 1.2em;
+  margin: 10px 0;
+}
+/* Icon button style */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.icon-button svg {
+  width: 16px;
+  height: 16px;
+  fill: #aaa;
+  transition: fill 0.3s ease;
+}
+.icon-button:hover svg {
+  fill: #888;
+}
+/* Monthly Expense Details Modal (Large Popup) */
+#monthly-expense-details-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+#monthly-expense-details-modal .modal-content {
+  position: relative;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  max-height: 80%;
+  overflow-y: auto;
+}
+#monthly-expense-details-modal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+#monthly-expense-details-modal .close-button:hover {
+  color: #fff;
+}
+/* Daily Expenses Section */
+.daily-expenses-container {
+  margin-top: 20px;
+}
+.daily-expenses-container h2 {
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+.daily-expenses-container .card .expense-amount {
+  font-weight: bold;
+}

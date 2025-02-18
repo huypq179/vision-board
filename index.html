@@ -1,747 +1,219 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vision Board, Thời Gian Lịch, Tài Chính & Chi tiêu hàng ngày</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #007BFF;
-      --primary-dark: #0056b3;
-      --background: #f4f4f4;
-      --card-bg: #fff;
-      --text-color: #333;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: var(--background);
-      padding: 20px;
-    }
-    /* Main container chia thành 2 cột */
-    .main-container {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-    }
-    /* Cột bên trái */
-    .left-column {
-      flex: 0 0 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    /* Cột bên phải */
-    .right-column { flex: 1; }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    /* Các thẻ chung */
-    .card {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
-    }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-    h2, h3 { margin: 0 0 10px 0; color: var(--text-color); }
-    /* Header của thẻ */
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card h2 span { font-size: 0.8em; color: var(--primary-color); margin-left: 5px; }
-    /* Nút Thêm */
-    .add-button-container {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .add-button-container button {
-      padding: 8px 16px;
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .add-button-container button:hover { background: var(--primary-dark); }
-    ul { list-style-type: none; padding-left: 0; margin: 10px 0 60px; }
-    li {
-      margin-bottom: 10px;
-      padding: 5px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    li:last-child { border-bottom: none; }
-    li button { font-size: 0.9em; }
-    /* Đồng hồ & Ngày tháng */
-    #clock { font-size: 2em; font-weight: bold; text-align: center; }
-    #date { font-size: 1.2em; text-align: center; margin-top: 5px; }
-    /* Lịch */
-    #calendar table { width: 100%; border-collapse: collapse; }
-    #calendar th, #calendar td {
-      width: 14.28%; height: 40px; text-align: center; border: 1px solid #eee;
-    }
-    #calendar th { background-color: var(--primary-color); color: #fff; }
-    #calendar td.current-day {
-      background-color: #ffeb3b; border: 2px solid #f57c00; border-radius: 50%;
-    }
-    /* Modal chung */
-    .modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); display: none;
-      align-items: center; justify-content: center; z-index: 1000;
-    }
-    .modal-content {
-      background: #fff; padding: 20px; border-radius: 8px;
-      width: 90%; max-width: 400px;
-    }
-    .modal-content h3 { margin-top: 0; }
-    .modal-content input[type="text"],
-    .modal-content input[type="number"] {
-      width: 100%; padding: 8px; margin-top: 10px;
-      border: 1px solid #ccc; border-radius: 5px; font-size: 1em;
-    }
-    .modal-content .modal-buttons {
-      margin-top: 15px; text-align: right;
-    }
-    .modal-content .modal-buttons button {
-      padding: 6px 12px; margin-left: 10px; border: none;
-      border-radius: 5px; cursor: pointer;
-    }
-    .modal-content .modal-buttons .save-btn {
-      background: var(--primary-color); color: #fff;
-    }
-    .modal-content .modal-buttons .cancel-btn {
-      background: #ccc; color: #333;
-    }
-    /* Modal xác nhận xóa */
-    #confirm-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 1100;
-    }
-    #confirm-modal .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 350px;
-    }
-    #confirm-modal p { margin: 10px 0; }
-    /* Phần Tài chính */
-    .financial-container { margin-top: 20px; }
-    .financial-container h2 { color: var(--text-color); margin-bottom: 10px; }
-    .financial-container .card { text-align: center; }
-    .financial-container .card .value {
-      font-size: 1.2em; margin: 10px 0;
-    }
-    /* Style cho nút icon */
-    .icon-button {
-      background: none; border: none; cursor: pointer; padding: 0;
-    }
-    .icon-button svg {
-      width: 16px; height: 16px; fill: #aaa; transition: fill 0.3s ease;
-    }
-    .icon-button:hover svg { fill: #888; }
-    /* Modal popup chi tiết các khoản phí hàng tháng (popup lớn) */
-    #monthly-expense-details-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      align-items: center;
-      justify-content: center;
-      z-index: 1001;
-    }
-    #monthly-expense-details-modal .modal-content {
-      position: relative;
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 8px;
-      width: 80%;
-      max-width: 600px;
-      max-height: 80%;
-      overflow-y: auto;
-    }
-    #monthly-expense-details-modal .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: #aaa;
-      cursor: pointer;
-      transition: color 0.3s ease;
-    }
-    #monthly-expense-details-modal .close-button:hover { color: #fff; }
-    /* Phần Chi tiêu hàng ngày */
-    .daily-expenses-container { margin-top: 20px; }
-    .daily-expenses-container h2 { color: var(--text-color); margin-bottom: 10px; }
-    .daily-expenses-container .card .expense-amount { font-weight: bold; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vision Board, Calendar, Finance & Daily Expenses</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Vision Board & Thời Gian Lịch -->
-  <div class="main-container">
-    <!-- Cột bên trái -->
-    <div class="left-column">
-      <div class="card" id="datetime-card">
-        <div id="clock">00:00:00</div>
-        <div id="date">01/01/2000</div>
-      </div>
-      <div class="card" id="calendar-card">
-        <div id="calendar"></div>
-      </div>
-      <div class="card" id="year-goals">
-        <h2>
-          Mục tiêu năm 
-          <span id="year-goals-progress">0%</span>
-        </h2>
-        <ul id="year-goals-list"></ul>
-        <div class="add-button-container">
-          <button onclick="openModal('year-goals-list', 'Nhập Mục tiêu năm')">Thêm</button>
-        </div>
-      </div>
+<!-- Vision Board & Calendar -->
+<div class="main-container">
+  <!-- Left column -->
+  <div class="left-column">
+    <div class="card" id="datetime-card">
+      <div id="clock">00:00:00</div>
+      <div id="date">01/01/2000</div>
     </div>
-    <!-- Cột bên phải -->
-    <div class="right-column">
-      <div class="grid-container">
-        <div class="card" id="daily-tasks">
-          <h2>
-            Nhiệm vụ ngày 
-            <span id="daily-tasks-progress">0%</span>
-          </h2>
-          <ul id="daily-tasks-list"></ul>
-          <div class="add-button-container">
-            <button onclick="openModal('daily-tasks-list', 'Nhập Nhiệm vụ ngày')">Thêm</button>
-          </div>
-        </div>
-        <div class="card" id="long-term-goals">
-          <h2>
-            Mục tiêu dài hạn 
-            <span id="long-term-goals-progress">0%</span>
-          </h2>
-          <ul id="long-term-goals-list"></ul>
-          <div class="add-button-container">
-            <button onclick="openModal('long-term-goals-list', 'Nhập Mục tiêu dài hạn')">Thêm</button>
-          </div>
-        </div>
-        <div class="card" id="short-term-goals">
-          <h2>
-            Mục tiêu ngắn hạn 
-            <span id="short-term-goals-progress">0%</span>
-          </h2>
-          <ul id="short-term-goals-list"></ul>
-          <div class="add-button-container">
-            <button onclick="openModal('short-term-goals-list', 'Nhập Mục tiêu ngắn hạn')">Thêm</button>
-          </div>
-        </div>
-      </div>
+    <div class="card" id="calendar-card">
+      <div id="calendar"></div>
     </div>
-  </div>
-
-  <!-- Modal chung cho mục tiêu/nhiệm vụ (input text) -->
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <h3 id="modal-title">Nhập nội dung</h3>
-      <input type="text" id="modal-input" placeholder="Nhập nội dung...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeModal()">Hủy</button>
-        <button class="save-btn" onclick="saveGoal()">Lưu</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal xác nhận xóa (custom confirmation) -->
-  <div id="confirm-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="confirm-modal-title">Xác nhận</h3>
-      <p id="confirm-modal-message">Bạn có chắc chắn muốn xóa?</p>
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="cancelConfirm()">Hủy</button>
-        <button class="save-btn" onclick="confirmYes()">Xóa</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Phần Tài chính -->
-  <div class="financial-container">
-    <h2>Tài chính</h2>
-    <div class="grid-container">
-      <div class="card" id="current-amount">
-        <div class="card-header">
-          <h3>Số tiền hiện có</h3>
-          <button class="icon-button" onclick="openFinancialModal('current-amount-value', 'Nhập số tiền hiện có')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-              <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="value" id="current-amount-value">0</div>
-      </div>
-      <div class="card" id="monthly-income">
-        <div class="card-header">
-          <h3>Thu nhập hàng tháng</h3>
-          <button class="icon-button" onclick="openFinancialModal('monthly-income-value', 'Nhập thu nhập hàng tháng')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-              <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="value" id="monthly-income-value">0</div>
-      </div>
-      <div class="card" id="monthly-expenses">
-        <div class="card-header">
-          <h3>Các khoản phí hàng tháng</h3>
-          <div>
-            <!-- Icon dấu cộng để thêm khoản phí mới -->
-            <button class="icon-button" onclick="openMonthlyExpenseModal()">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-              </svg>
-            </button>
-            <!-- Icon hamburger để mở popup chi tiết (modal lớn) -->
-            <button class="icon-button" onclick="openMonthlyExpenseDetailsModal()">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="value" id="monthly-expenses-value">0</div>
-        <!-- Danh sách chi tiết các khoản phí hàng tháng (đặt ở đây với display:none) -->
-        <ul id="monthly-expense-list" style="display:none;"></ul>
-      </div>
-      <div class="card" id="savings-amount">
-        <div class="card-header">
-          <h3>Số tiền tiết kiệm</h3>
-          <button class="icon-button" onclick="openFinancialModal('savings-amount-value', 'Nhập số tiền tiết kiệm')">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-              <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="value" id="savings-amount-value">0</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal dành cho cập nhật giá trị Tài chính (input number) -->
-  <div id="financial-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="financial-modal-title">Nhập giá trị</h3>
-      <input type="number" id="financial-modal-input" placeholder="Nhập giá trị...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeFinancialModal()">Hủy</button>
-        <button class="save-btn" onclick="saveFinancialValue()">Lưu</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Phần Chi tiêu hàng ngày -->
-  <div class="daily-expenses-container">
-    <h2>Chi tiêu hàng ngày</h2>
-    <div class="card" id="daily-expenses-card">
-      <div class="card-header">
-        <h3>Chi tiêu hàng ngày</h3>
-        <span id="daily-expenses-total">0</span>
-      </div>
-      <ul id="daily-expenses-list"></ul>
+    <div class="card" id="year-goals">
+      <h2>
+        Year Goals
+        <span id="year-goals-progress">0%</span>
+      </h2>
+      <ul id="year-goals-list"></ul>
       <div class="add-button-container">
-        <button onclick="openExpenseModal()">Thêm</button>
+        <button onclick="openModal('year-goals-list', 'Enter Goal')">Add</button>
       </div>
     </div>
   </div>
-
-  <!-- Modal dành cho nhập Chi tiêu hàng ngày (nội dung & số tiền) -->
-  <div id="expense-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="expense-modal-title">Nhập chi tiêu hàng ngày</h3>
-      <input type="text" id="expense-modal-desc" placeholder="Nội dung chi tiêu...">
-      <input type="number" id="expense-modal-amount" placeholder="Số tiền...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeExpenseModal()">Hủy</button>
-        <button class="save-btn" onclick="saveExpense()">Lưu</button>
+  <!-- Right column -->
+  <div class="right-column">
+    <div class="grid-container">
+      <div class="card" id="daily-tasks">
+        <h2>
+          Daily Tasks
+          <span id="daily-tasks-progress">0%</span>
+        </h2>
+        <ul id="daily-tasks-list"></ul>
+        <div class="add-button-container">
+          <button onclick="openModal('daily-tasks-list', 'Enter Task')">Add</button>
+        </div>
+      </div>
+      <div class="card" id="long-term-goals">
+        <h2>
+          Long-term Goals
+          <span id="long-term-goals-progress">0%</span>
+        </h2>
+        <ul id="long-term-goals-list"></ul>
+        <div class="add-button-container">
+          <button onclick="openModal('long-term-goals-list', 'Enter Long-term Goal')">Add</button>
+        </div>
+      </div>
+      <div class="card" id="short-term-goals">
+        <h2>
+          Short-term Goals
+          <span id="short-term-goals-progress">0%</span>
+        </h2>
+        <ul id="short-term-goals-list"></ul>
+        <div class="add-button-container">
+          <button onclick="openModal('short-term-goals-list', 'Enter Short-term Goal')">Add</button>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal dành cho nhập Chi phí hàng tháng (detailed) -->
-  <div id="monthly-expense-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="monthly-expense-modal-title">Nhập khoản phí hàng tháng</h3>
-      <input type="text" id="monthly-expense-desc" placeholder="Nội dung khoản phí...">
-      <input type="number" id="monthly-expense-amount" placeholder="Số tiền...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeMonthlyExpenseModal()">Hủy</button>
-        <button class="save-btn" onclick="saveMonthlyExpense()">Lưu</button>
+<!-- Modal for Goals/Tasks -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3 id="modal-title">Enter Content</h3>
+    <input type="text" id="modal-input" placeholder="Enter content..." />
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="save-btn" onclick="saveGoal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirmation Modal -->
+<div id="confirm-modal" class="modal">
+  <div class="modal-content">
+    <h3 id="confirm-modal-title">Confirm</h3>
+    <p id="confirm-modal-message">Are you sure you want to delete?</p>
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="cancelConfirm()">Cancel</button>
+      <button class="save-btn" onclick="confirmYes()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Financial Section -->
+<div class="financial-container">
+  <h2>Finance</h2>
+  <div class="grid-container">
+    <div class="card" id="current-amount">
+      <div class="card-header">
+        <h3>Current Amount</h3>
+        <button class="icon-button" onclick="openFinancialModal('current-amount-value', 'Enter Current Amount')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
+          </svg>
+        </button>
       </div>
+      <div class="value" id="current-amount-value">0</div>
     </div>
-  </div>
-
-  <!-- Modal hiển thị chi tiết các khoản phí hàng tháng (popup lớn) -->
-  <div id="monthly-expense-details-modal">
-    <div class="modal-content">
-      <button class="close-button" onclick="closeMonthlyExpenseDetailsModal()">×</button>
-      <h3>Chi tiết các khoản phí hàng tháng</h3>
-      <div id="monthly-expense-details-container"></div>
-    </div>
-  </div>
-
-  <script>
-    // --- Modal xác nhận xóa custom ---
-    var confirmCallback = null;
-    function openConfirmModal(message, callback) {
-      confirmCallback = callback;
-      document.getElementById('confirm-modal-message').textContent = message;
-      document.getElementById('confirm-modal').style.display = 'flex';
-    }
-    function cancelConfirm() {
-      if (confirmCallback) { confirmCallback(false); }
-      document.getElementById('confirm-modal').style.display = 'none';
-      confirmCallback = null;
-    }
-    function confirmYes() {
-      if (confirmCallback) { confirmCallback(true); }
-      document.getElementById('confirm-modal').style.display = 'none';
-      confirmCallback = null;
-    }
-
-    // --- Đồng hồ & Lịch ---
-    function updateDateTime() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      document.getElementById('date').textContent = `${day}/${month}/${year}`;
-    }
-    setInterval(updateDateTime, 1000);
-    updateDateTime();
-    function generateCalendar() {
-      const calendarEl = document.getElementById('calendar');
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
-      const currentDate = now.getDate();
-      const firstDay = new Date(currentYear, currentMonth, 1);
-      const startingDay = firstDay.getDay();
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      let table = '<table>';
-      const daysOfWeek = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-      table += '<tr>';
-      for (let dayName of daysOfWeek) { table += `<th>${dayName}</th>`; }
-      table += '</tr><tr>';
-      let dayOfWeekCounter = 0;
-      for (let i = 0; i < startingDay; i++) { table += '<td></td>'; dayOfWeekCounter++; }
-      for (let day = 1; day <= daysInMonth; day++) {
-        const isCurrentDay = (day === currentDate);
-        table += `<td class="${isCurrentDay ? 'current-day' : ''}">${day}</td>`;
-        dayOfWeekCounter++;
-        if (dayOfWeekCounter % 7 === 0 && day !== daysInMonth) { table += '</tr><tr>'; }
-      }
-      while (dayOfWeekCounter % 7 !== 0) { table += '<td></td>'; dayOfWeekCounter++; }
-      table += '</tr></table>';
-      calendarEl.innerHTML = table;
-    }
-    generateCalendar();
-
-    // --- Mục tiêu/Nhiệm vụ (checkbox) ---
-    let currentEditElement = null;
-    let currentListId = '';
-    function openModal(listId, title) {
-      currentListId = listId;
-      currentEditElement = null;
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-input').value = '';
-      document.getElementById('modal').style.display = 'flex';
-    }
-    function openEditModal(button) {
-      const li = button.parentElement;
-      const span = li.querySelector('.goal-text');
-      currentEditElement = span;
-      document.getElementById('modal-title').textContent = 'Chỉnh sửa mục tiêu';
-      document.getElementById('modal-input').value = span.textContent;
-      document.getElementById('modal').style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-      currentEditElement = null;
-    }
-    function saveGoal() {
-      const input = document.getElementById('modal-input');
-      const text = input.value.trim();
-      if (text) {
-        if (currentEditElement !== null) {
-          currentEditElement.textContent = text;
-          const li = currentEditElement.parentElement;
-          const ul = li.parentElement;
-          updateProgressForList(ul.id);
-          currentEditElement = null;
-        } else if (currentListId) {
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <input type="checkbox" onchange="toggleCheckbox(this)">
-            <span class="goal-text">${text}</span>
-            <button onclick="openEditModal(this)">Sửa</button>
-            <button onclick="deleteGoal(this)">Xóa</button>
-          `;
-          document.getElementById(currentListId).appendChild(li);
-          updateProgressForList(currentListId);
-        }
-      }
-      closeModal();
-    }
-    function updateProgressForList(listId) {
-      const checkboxes = document.querySelectorAll(`#${listId} li input[type="checkbox"]`);
-      const total = checkboxes.length;
-      let checkedCount = 0;
-      checkboxes.forEach(cb => { if (cb.checked) checkedCount++; });
-      const percentage = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
-      let spanId = "";
-      switch(listId) {
-         case "year-goals-list": spanId = "year-goals-progress"; break;
-         case "daily-tasks-list": spanId = "daily-tasks-progress"; break;
-         case "long-term-goals-list": spanId = "long-term-goals-progress"; break;
-         case "short-term-goals-list": spanId = "short-term-goals-progress"; break;
-      }
-      if (spanId) { document.getElementById(spanId).textContent = percentage + '%'; }
-    }
-    function toggleCheckbox(checkbox) {
-      const listId = checkbox.parentElement.parentElement.id;
-      updateProgressForList(listId);
-    }
-    function deleteGoal(button) {
-      openConfirmModal("Bạn có chắc chắn muốn xóa?", function(confirmed) {
-        if (confirmed) {
-          const li = button.parentElement;
-          const ul = li.parentElement;
-          li.remove();
-          updateProgressForList(ul.id);
-        }
-      });
-    }
-    
-    // --- Phần Tài chính ---
-    let currentFinancialElement = null;
-    function formatVND(value) {
-      const number = Number(value) || 0;
-      return number.toLocaleString('en-US', { maximumFractionDigits: 0 });
-    }
-    function openFinancialModal(elementId, title) {
-      currentFinancialElement = document.getElementById(elementId);
-      document.getElementById('financial-modal-title').textContent = title;
-      document.getElementById('financial-modal-input').value = currentFinancialElement.textContent.replace(/,/g, '');
-      document.getElementById('financial-modal').style.display = 'flex';
-    }
-    function closeFinancialModal() {
-      document.getElementById('financial-modal').style.display = 'none';
-      currentFinancialElement = null;
-    }
-    function saveFinancialValue() {
-      const input = document.getElementById('financial-modal-input');
-      const value = input.value.trim();
-      if (value !== '') { currentFinancialElement.textContent = formatVND(value); }
-      closeFinancialModal();
-    }
-    
-    // --- Phần Chi tiêu hàng ngày ---
-    function openExpenseModal() {
-      document.getElementById('expense-modal').style.display = 'flex';
-      document.getElementById('expense-modal-desc').value = '';
-      document.getElementById('expense-modal-amount').value = '';
-    }
-    function closeExpenseModal() { document.getElementById('expense-modal').style.display = 'none'; }
-    function saveExpense() {
-      const desc = document.getElementById('expense-modal-desc').value.trim();
-      const amount = document.getElementById('expense-modal-amount').value.trim();
-      if (desc && amount !== '') {
-        const li = document.createElement("li");
-        const formattedAmount = formatVND(amount);
-        li.innerHTML = `
-          <span class="expense-desc">${desc}</span>
-          <span class="expense-amount">${formattedAmount}</span>
-          <button onclick="deleteExpense(this)">Xóa</button>
-        `;
-        document.getElementById('daily-expenses-list').appendChild(li);
-        updateDailyExpensesTotal();
-      }
-      closeExpenseModal();
-    }
-    function deleteExpense(button) {
-      openConfirmModal("Bạn có chắc chắn muốn xóa?", function(confirmed) {
-        if (confirmed) {
-          const li = button.parentElement;
-          li.remove();
-          updateDailyExpensesTotal();
-        }
-      });
-    }
-    function updateDailyExpensesTotal() {
-      const items = document.querySelectorAll('#daily-expenses-list li');
-      let total = 0;
-      items.forEach(item => {
-        const amountText = item.querySelector('.expense-amount').textContent.replace(/,/g, '');
-        total += Number(amountText);
-      });
-      document.getElementById('daily-expenses-total').textContent = formatVND(total);
-    }
-    
-    // --- Phần Chi phí hàng tháng (detailed) ---
-    let currentMonthlyExpenseDetailElement = null;
-    function openMonthlyExpenseModal() {
-      currentMonthlyExpenseDetailElement = null;
-      document.getElementById('monthly-expense-modal').style.display = 'flex';
-      document.getElementById('monthly-expense-desc').value = '';
-      document.getElementById('monthly-expense-amount').value = '';
-    }
-    function closeMonthlyExpenseModal() {
-      document.getElementById('monthly-expense-modal').style.display = 'none';
-    }
-    function saveMonthlyExpense() {
-      console.log("saveMonthlyExpense triggered");
-      const desc = document.getElementById('monthly-expense-desc').value.trim();
-      const amount = document.getElementById('monthly-expense-amount').value.trim();
-      if (desc && amount !== '') {
-        const formattedAmount = formatVND(amount);
-        if (currentMonthlyExpenseDetailElement) {
-          // Chỉnh sửa chi tiết đã có
-          currentMonthlyExpenseDetailElement.querySelector('.expense-desc').textContent = desc;
-          currentMonthlyExpenseDetailElement.querySelector('.expense-amount').textContent = formattedAmount;
-          currentMonthlyExpenseDetailElement = null;
-        } else {
-          // Thêm khoản phí mới với icon chỉnh sửa và xóa
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <span class="expense-desc">${desc}</span>: <span class="expense-amount">${formattedAmount}</span>
-            <button class="icon-button" onclick="editMonthlyExpenseDetail(this)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
-              </svg>
-            </button>
-            <button class="icon-button" onclick="deleteMonthlyExpenseDetail(this)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <path d="M5.5 5.5A.5.5 0 0 1 6 5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5zm-1 2A.5.5 0 0 1 5 7h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm1 3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5zM4.118 4.5 4 4.5a1 1 0 0 0-1 1v.5h10V5.5a1 1 0 0 0-1-1l-.118.001L10.5 2.793 8.207 5.086 4.118 4.5z"/>
-              </svg>
-            </button>
-          `;
-          document.getElementById('monthly-expense-list').appendChild(li);
-        }
-        updateMonthlyExpensesTotal();
-      }
-      closeMonthlyExpenseModal();
-    }
-    function editMonthlyExpenseDetail(button) {
-      const li = button.parentElement;
-      currentMonthlyExpenseDetailElement = li;
-      const desc = li.querySelector('.expense-desc').textContent;
-      const amount = li.querySelector('.expense-amount').textContent.replace(/,/g, '');
-      document.getElementById('monthly-expense-modal').style.display = 'flex';
-      document.getElementById('monthly-expense-desc').value = desc;
-      document.getElementById('monthly-expense-amount').value = amount;
-    }
-    function deleteMonthlyExpenseDetail(button) {
-      openConfirmModal("Bạn có chắc chắn muốn xóa?", function(confirmed) {
-        if (confirmed) {
-          const li = button.parentElement;
-          li.remove();
-          updateMonthlyExpensesTotal();
-        }
-      });
-    }
-    function updateMonthlyExpensesTotal() {
-      const items = document.querySelectorAll('#monthly-expense-list li');
-      let total = 0;
-      items.forEach(item => {
-        const amountText = item.querySelector('.expense-amount').textContent.replace(/,/g, '');
-        total += Number(amountText);
-      });
-      document.getElementById('monthly-expenses-value').textContent = formatVND(total);
-    }
-    // Mở modal chi tiết các khoản phí hàng tháng (popup lớn) bằng icon hamburger
-    function openMonthlyExpenseDetailsModal() {
-      const expenseList = document.getElementById('monthly-expense-list');
-      // Di chuyển phần tử danh sách vào modal chi tiết
-      expenseList.style.display = 'block';
-      const detailsContainer = document.getElementById('monthly-expense-details-container');
-      detailsContainer.innerHTML = "";
-      detailsContainer.appendChild(expenseList);
-      document.getElementById('monthly-expense-details-modal').style.display = 'flex';
-    }
-    function closeMonthlyExpenseDetailsModal() {
-      const expenseList = document.getElementById('monthly-expense-list');
-      expenseList.style.display = 'none';
-      // Đưa danh sách trở lại thẻ "Các khoản phí hàng tháng"
-      const parent = document.getElementById('monthly-expenses');
-      parent.appendChild(expenseList);
-      document.getElementById('monthly-expense-details-modal').style.display = 'none';
-    }
-  </script>
-  
-  <!-- Modal hiển thị chi tiết các khoản phí hàng tháng (popup lớn) -->
-  <div id="monthly-expense-details-modal">
-    <div class="modal-content">
-      <button class="close-button" onclick="closeMonthlyExpenseDetailsModal()">×</button>
-      <h3>Chi tiết các khoản phí hàng tháng</h3>
-      <div id="monthly-expense-details-container"></div>
-    </div>
-  </div>
-  
-  <!-- Modal xác nhận xóa -->
-  <div id="confirm-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="confirm-modal-title">Xác nhận</h3>
-      <p id="confirm-modal-message">Bạn có chắc chắn muốn xóa?</p>
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="cancelConfirm()">Hủy</button>
-        <button class="save-btn" onclick="confirmYes()">Xóa</button>
+    <div class="card" id="monthly-income">
+      <div class="card-header">
+        <h3>Monthly Income</h3>
+        <button class="icon-button" onclick="openFinancialModal('monthly-income-value', 'Enter Monthly Income')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
+          </svg>
+        </button>
       </div>
+      <div class="value" id="monthly-income-value">0</div>
     </div>
-  </div>
-  
-  <!-- Modal dành cho nhập Chi tiêu hàng ngày (nội dung & số tiền) -->
-  <div id="expense-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="expense-modal-title">Nhập chi tiêu hàng ngày</h3>
-      <input type="text" id="expense-modal-desc" placeholder="Nội dung chi tiêu...">
-      <input type="number" id="expense-modal-amount" placeholder="Số tiền...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeExpenseModal()">Hủy</button>
-        <button class="save-btn" onclick="saveExpense()">Lưu</button>
+    <div class="card" id="monthly-expenses">
+      <div class="card-header">
+        <h3>Monthly Expenses</h3>
+        <div>
+          <!-- Plus icon to add a new monthly expense -->
+          <button class="icon-button" onclick="openMonthlyExpenseModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+          </button>
+          <!-- Hamburger icon to open the detailed monthly expenses modal -->
+          <button class="icon-button" onclick="openMonthlyExpenseDetailsModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+              <path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+          </button>
+        </div>
       </div>
+      <div class="value" id="monthly-expenses-value">0</div>
+      <!-- Hidden list for monthly expense details -->
+      <ul id="monthly-expense-list" style="display:none;"></ul>
+    </div>
+    <div class="card" id="savings-amount">
+      <div class="card-header">
+        <h3>Savings</h3>
+        <button class="icon-button" onclick="openFinancialModal('savings-amount-value', 'Enter Savings')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2L2 11.207V13h1.793L14 3.793 11.207 2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="value" id="savings-amount-value">0</div>
     </div>
   </div>
+</div>
 
-  <!-- Modal dành cho nhập Chi phí hàng tháng (detailed) -->
-  <div id="monthly-expense-modal" class="modal">
-    <div class="modal-content">
-      <h3 id="monthly-expense-modal-title">Nhập khoản phí hàng tháng</h3>
-      <input type="text" id="monthly-expense-desc" placeholder="Nội dung khoản phí...">
-      <input type="number" id="monthly-expense-amount" placeholder="Số tiền...">
-      <div class="modal-buttons">
-        <button class="cancel-btn" onclick="closeMonthlyExpenseModal()">Hủy</button>
-        <button class="save-btn" onclick="saveMonthlyExpense()">Lưu</button>
-      </div>
+<!-- Financial Modal -->
+<div id="financial-modal" class="modal">
+  <div class="modal-content">
+    <h3 id="financial-modal-title">Enter Value</h3>
+    <input type="number" id="financial-modal-input" placeholder="Enter value..." />
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="closeFinancialModal()">Cancel</button>
+      <button class="save-btn" onclick="saveFinancialValue()">Save</button>
     </div>
   </div>
-  
+</div>
+
+<!-- Daily Expenses Section -->
+<div class="daily-expenses-container">
+  <h2>Daily Expenses</h2>
+  <div class="card" id="daily-expenses-card">
+    <div class="card-header">
+      <h3>Daily Expenses</h3>
+      <span id="daily-expenses-total">0</span>
+    </div>
+    <ul id="daily-expenses-list"></ul>
+    <div class="add-button-container">
+      <button onclick="openExpenseModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal (Daily Expenses) -->
+<div id="expense-modal" class="modal">
+  <div class="modal-content">
+    <h3 id="expense-modal-title">Enter Daily Expense</h3>
+    <input type="text" id="expense-modal-desc" placeholder="Expense description..." />
+    <input type="number" id="expense-modal-amount" placeholder="Amount..." />
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="closeExpenseModal()">Cancel</button>
+      <button class="save-btn" onclick="saveExpense()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Expense Modal -->
+<div id="monthly-expense-modal" class="modal">
+  <div class="modal-content">
+    <h3 id="monthly-expense-modal-title">Enter Monthly Expense</h3>
+    <input type="text" id="monthly-expense-desc" placeholder="Expense description..." />
+    <input type="number" id="monthly-expense-amount" placeholder="Amount..." />
+    <div class="modal-buttons">
+      <button class="cancel-btn" onclick="closeMonthlyExpenseModal()">Cancel</button>
+      <button class="save-btn" onclick="saveMonthlyExpense()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Expense Details Modal (Large Popup) -->
+<div id="monthly-expense-details-modal">
+  <div class="modal-content">
+    <button class="close-button" onclick="closeMonthlyExpenseDetailsModal()">×</button>
+    <h3>Monthly Expense Details</h3>
+    <div id="monthly-expense-details-container"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
